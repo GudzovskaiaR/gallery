@@ -2,58 +2,69 @@ function Gallery(gallery) {
   if (!gallery) {
     throw new Error("Gallery element should be passed!");
   }
-  let currentImage;
-  const images = gallery.querySelectorAll("img");
-  const modal = document.querySelector(".modal");
-  const prevButton = modal.querySelector(".prev");
-  const nextButton = modal.querySelector(".next");
+  
+  this.gallery = gallery;
+  this.images = gallery.querySelectorAll("img");
+  this.modal = document.querySelector(".modal");
+  this.prevButton = this.modal.querySelector(".prev");
+  this.nextButton = this.modal.querySelector(".next");
 
-  function openModal() {
-    if (modal.matches(".open")) {
+  
+
+  
+ 
+
+  
+  this.handleOutModalClick = this.handleOutModalClick.bind(this);
+  this.handleKeyUp = this.handleKeyUp.bind(this);
+  this.showNextImage = this.showNextImage.bind(this);
+  this.showPrevImage = this.showPrevImage.bind(this);
+  this.images.forEach((image) =>
+    image.addEventListener("click", ({ currentTarget }) =>
+      this.showImage(currentTarget)
+    )
+  );
+ this.modal.addEventListener("click",this.handleOutModalClick);
+}
+Gallery.prototype.openModal = function openModal() {
+    if (this.modal.matches(".open")) {
     }
-    modal.classList.add("open");
-    window.addEventListener('keyup',handleKeyUp)
-    nextButton.addEventListener('click', showNextImage); 
-    prevButton.addEventListener('click', showPrevImage); 
+    this.modal.classList.add("open");
+    window.addEventListener("keyup", this.handleKeyUp);
+    this.nextButton.addEventListener("click", this.showNextImage);
+    this.prevButton.addEventListener("click", this.showPrevImage);
   }
+  Gallery.prototype.showImage = function showImage(image) {
+    this.currentImage = image;
 
-  function closeModal() {
-    
-      modal.classList.remove("open");
-    
-    window.removeEventListener('keyup',handleKeyUp)
-    nextButton.removeEventListener('click', showNextImage); 
-    prevButton.removeEventListener('click', showPrevImage); 
+    this.modal.querySelector("img").src = image.src;
+    this.modal.querySelector("h2").textContent = image.title;
+    this.modal.querySelector("figcaption p").textContent = image.dataset.description;
+    this.openModal();
   }
-  function handleOutModalClick(event){
-    if (event.target === event.currentTarget){
-        closeModal();
+  Gallery.prototype.closeModal = function closeModal() {
+    this.modal.classList.remove("open");
+
+    window.removeEventListener("keyup", this.handleKeyUp);
+    this.nextButton.removeEventListener("click", this.showNextImage);
+    this.prevButton.removeEventListener("click", this.showPrevImage);
+  }
+  Gallery.prototype.handleOutModalClick = function handleOutModalClick(event) {
+    if (event.target === event.currentTarget) {
+      this.closeModal();
     }
-  }
-  function showImage(image) {
-   
-    currentImage = image;
-
-    modal.querySelector("img").src = image.src;
-    modal.querySelector("h2").textContent = image.title;
-    modal.querySelector("figcaption p").textContent = image.dataset.description;
-    openModal();
-  }
-function showNextImage(){
-showImage(currentImage.nextElementSibling || gallery.firstElementChild)
 }
-function showPrevImage(){
-    showImage(currentImage.previousElementSibling || gallery.lastElementChild)
+Gallery.prototype.handleKeyUp = function handleKeyUp(event) {
+  if (event.key === "Escape") return this.closeModal();
+  if (event.key === "ArrowLeft") return this.showPrevImage();
+  if (event.key === "ArrowRight") return this.showNextImage();
 }
-
-function handleKeyUp(event){
-    if(event.key === 'Escape')return closeModal();
-    if(event.key === 'ArrowLeft') return showPrevImage();
-    if(event.key === 'ArrowRight') return showNextImage();
+Gallery.prototype.showNextImage = function  showNextImage() {
+  this.showImage(this.currentImage.nextElementSibling || this.gallery.firstElementChild);
 }
-  images.forEach((image) => image.addEventListener("click", ({currentTarget})=> showImage(currentTarget)));
-  modal.addEventListener("click", handleOutModalClick);
-
+ 
+Gallery.prototype.showPrevImage = function showPrevImage() {
+  this.showImage(this.currentImage.previousElementSibling || this.gallery.lastElementChild);
 }
-const gallery1 = Gallery(document.querySelector(".gallery1"));
-const gallery2 = Gallery(document.querySelector(".gallery2"));
+const gallery1 = new Gallery(document.querySelector(".gallery1"));
+const gallery2 = new Gallery(document.querySelector(".gallery2"));
